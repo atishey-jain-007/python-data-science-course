@@ -24,10 +24,48 @@ with st.spinner("loading dataset..."):
     st.subheader("A simple data app to analyze Pokemon data")
 
     st.sidebar.title("Menu")
-    choice =st.sidebar.radio("Options",["view Data","Visualize Data"])
+    choice =st.sidebar.radio("Options",["view Data","Visualize Data","Column Analysis"])
     if choice =='view Data':
         st.header("view Dataset")
         st.dataframe(df)
+
+    elif choice =='Visualize Data':
+    elif choice =='Column Analysis':
+        columns = df.columns.tolist()
+        scol =st.sidebar.selectbarbox("Select a column", columns)
+        if df[scol].dtype =='object':
+            vc= df[scol].value_count()
+            most_common =vc.idxmax()
+            c1,c2 =st.columns([3,1])
+            #visualize
+            fig = px.funnel_area(names=vc.index, values = vc.values)
+            c1.plotlt_chart(fig)
+            #value counts
+            c2.subheader("Total Data")
+            c2.write(vc)
+            c2.metric("Most common",most_common,int(vc[most_common]))
+            c1,c2 =st.columns(2)
+            fig2 = px.pie(df, x=scol, title=f"Percentage wise of {scol}",
+            hole=0.3)
+            c1.plotly_chart(fig2)
+            fig3 = px.box(df, scol, title=f"{scol} by {scol}")
+            c2.plotly_chart(fig3)
+            fig4= px.funnel_area(names =vc.index,
+                            values=vc.values,
+                            title=f"{scol} Funnel Area",
+                            height = 600)
+            st.plotly_chart(fig4, use_container_width=True)
+    else:
+        tab1,tab2 = st.tabs(["Univariate","Bivariate"])
+        with tab1:
+            score = df[scol].describe()
+            fig1= px.histogram(df,x=scol,title=f"Distribution of{scol}")
+            fig2 = px.box(df,)
+
+
+        
+         
+
     else:
         st.header("visualization")  
         cat_cols= df.select_dtypes(include='object').columns.tolist()
